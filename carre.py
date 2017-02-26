@@ -15,18 +15,17 @@ y_init = 0. # départ d'un bord pour raisons d'affichage
 V = [(np.random.random(),np.random.random())]
 T = [0.0] # ensemble des durées entre deux rebonds consécutifs
 Pt_Int = [(x_init,y_init)] # ensemble des points de rebond
-grille_finesse = 2**5
+grille_finesse = 2**6
 Grille = np.ones((grille_finesse,grille_finesse))
 
 i = 0
 while i < 100 :
+    print(i)
     x = Pt_Int[len(Pt_Int)-1][0]
     y = Pt_Int[len(Pt_Int)-1][1]
-    if i == 0: 
-        vx = float(V[0][0])
-        vy = float(V[0][1])
+    vx = V[len(V)-1][0]
+    vy = V[len(V)-1][1]
 
-    t = T[len(T)-1]
     I = []
     t_bas = - y/vy
     t_haut = (1. - y)/vy
@@ -36,26 +35,29 @@ while i < 100 :
 
     I = [l for l in I if l > 0.] ### and 0. <= round(x + t*vx,14) - np.sign(round(x + t*vx,14)) * 10**(-14) <= 1. and 0. <= round(y + t*vy, 14) - np.sign(round(x + t*vx,14)) * 10**(-14) <= 1.]
 
-
+    print(I)
     t = min(I)
-    T.append(t-10**(-14))
+    T.append(t)
     
     for h in range(grille_finesse):
         for j in range(grille_finesse):
-            k = 1./grille_finesse
-            grille_index = (h,j)
-            if np.sqrt((x+k*t*vx-k*h)**2+(y+k*t*vy-k*j)**2) < np.sqrt(2*k**2):
-                Grille[grille_index] += abs(np.sqrt(8*k**2)*vy/vx*abs(np.sqrt((x+k*t*vx-k*h)**2+(y+k*t*vy-k*j)**2) - np.sqrt(2*k**2)))
+            for n in range(grille_finesse):
+                k = 1./grille_finesse
+                grille_index = (grille_finesse-1-j,h)
+                if np.sqrt((x+n*k*t*vx-k*h)**2+(y+n*k*t*vy-k*j)**2) < k/2.:
+                    Grille[grille_index] += abs(np.sqrt(8*k**2)*vy/vx*(np.sqrt((x+k*t*vx-k*h)**2+(y+k*t*vy-k*j)**2) - k/2.))
+                    #Grille[grille_index] += 1
+        
 
-
+        
     x = x + t*vx
     y = y + t*vy
     Pt_Int.append((abs(round(x,14)),abs(round(y,14))))
     
     if round(x,14) == 1. or round(x,14) == 0.:
-        vx = -vx
+        V.append((-vx,vy))
     elif round(y,14) == 1. or round(y,14) == 0.: 
-        vy = -vy
+        V.append((vx,-vy))
     else:
         print("There is a problem","\n")
         
@@ -65,15 +67,16 @@ while i < 100 :
 #Grille = [np.log(l) for l in Grille]
 print(Grille,"\n")
 
+
+
 X_pt_int = []
 Y_pt_int = []
-
-
 for i in Pt_Int[:] :
     X_pt_int.append(i[0])
     Y_pt_int.append(i[1])
     
     
+
 plt.plot(carre[0],carre[1], 'k-', X_pt_int, Y_pt_int, 'r-')
 plt.savefig('display1.png') # Any filename will do
 plt.matshow(Grille, fignum=100, cmap=plt.cm.gray)
