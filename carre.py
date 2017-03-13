@@ -15,7 +15,7 @@ y_init = 0. # départ d'un bord pour raisons d'affichage
 V = [(np.random.random(),np.random.random())]
 T = [0.0] # ensemble des durées entre deux rebonds consécutifs
 Pt_Int = [(x_init,y_init)] # ensemble des points de rebond
-grille_finesse = 2**6
+grille_finesse = 2**7
 Grille = np.ones((grille_finesse,grille_finesse))
 
 i = 0
