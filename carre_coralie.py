@@ -71,6 +71,47 @@ def repartlong(n,l,x,y,vd,N,eps=10**(-14)):
             print(M[2**n-1-i,j])
             
     return M
+    
+def repartretour(n,l,x,y,vd,N,eps=10**(-14)):
+    T=polyretour(l,x,y,vd,N,eps)
+    M=np.zeros((2**n,2**n))
+    for k in range(len(T)-1):
+        x1,y1,x2,y2,v=T[k][1][0],T[k][2][0],\
+                       T[k+1][1][0],T[k+1][2][0],\
+                       [T[k][1][1],T[k][2][1]]
+        I=[(round(x1,14),round(y1,14)),(round(x2,14),round(y2,14))]
+        i=int(2**n*x1)
+        j=int(2**n*x2)
+        mi,ma=min(i,j),max(i,j)
+        ab=range(mi+1,ma+1)
+#vd1!=0 et vd2!=0 sinon trivial
+        I=I+[(o/2.0**n,round(y1+(o/2.0**n-x1)*v[1]/v[0],14)) for o in ab]
+        i=int(2**n*y1)
+        j=int(2**n*y2)
+        mi,ma=min(i,j),max(i,j)
+        ordo=range(mi+1,ma+1)
+        I=I+[(round(x1+(o/2.0**n-y1)*v[0]/v[1],14),o/2.0**n) for o in ordo]
+        I=set(I)
+        I=list(I)
+        I.sort()
+        for k2 in range(len(I)-1):
+            d=np.sqrt((I[k2+1][0]-I[k2][0])**2+(I[k2+1][1]-I[k2][1])**2)
+            (xm,ym)=((I[k2+1][0]+I[k2][0])/2.0,(I[k2+1][1]+I[k2][1])/2.0)
+            j,i=int(2**n*xm),int(2**n*ym)
+            if j==2**n:
+                j=j-1                
+            M[2**n-1-i,j]=M[2**n-1-i,j]+d
+    return M
+    
+def numeri(n,l,x,y,vd,N,eps=10**(-14)):
+    M=repartretour(n,l,x,y,vd,N,eps)
+    M=M.tolist()
+    S=sum([ sum (j) for j in M ])
+    d=0
+    for i in M :
+        for j in i :
+            d+=np.abs(4**n*j - S)
+    return d/(S*4.0**n)
 
 #entree = input('n,x,y,vd,N?')
 #n,x,y,vd,N = entree.split(';')
